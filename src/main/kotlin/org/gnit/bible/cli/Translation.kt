@@ -71,6 +71,7 @@ val availableTranslations = listOf(
     Translation.cunp,
     Translation.krv,
     Translation.jc,
+    Translation.ntlh,
 )
 
 private const val BIBLES = "bibleTranslationNames"
