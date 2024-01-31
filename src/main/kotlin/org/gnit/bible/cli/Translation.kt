@@ -1,5 +1,7 @@
 package org.gnit.bible.cli
 
+import java.nio.charset.Charset
+import java.util.*
 import org.apache.lucene.analysis.Analyzer
 import org.apache.lucene.analysis.cn.smart.SmartChineseAnalyzer
 import org.apache.lucene.analysis.de.GermanAnalyzer
@@ -21,13 +23,12 @@ import org.apache.lucene.analysis.th.ThaiAnalyzer
 import org.apache.lucene.analysis.uk.UkrainianMorfologikAnalyzer
 import org.gnit.bible.Language
 import org.gnit.bible.Translation
-import java.nio.charset.Charset
-import java.util.*
 
-fun Language.isCJK() = when (this) {
-    Language.zh, Language.ja, Language.ko -> true
-    else -> false
-}
+fun Language.isCJK() =
+        when (this) {
+            Language.zh, Language.ja, Language.ko -> true
+            else -> false
+        }
 
 fun Language.getAnalyzer(): Analyzer {
 
@@ -46,8 +47,10 @@ fun Language.getAnalyzer(): Analyzer {
         Language.zh -> SmartChineseAnalyzer()
         Language.ko -> KoreanAnalyzer()
         Language.ja -> JapaneseAnalyzer()
-        // TODO Language.vi -> // Vietnamese https://github.com/duydo/elasticsearch-analysis-vietnamese/blob/master/src/main/java/org/apache/lucene/analysis/vi/VietnameseAnalyzer.java
-        // TODO Language.tl -> // Tagalog https://stackoverflow.com/questions/55020235/adding-rare-languages-to-apache-solr
+        // TODO Language.vi -> // Vietnamese
+        // https://github.com/duydo/elasticsearch-analysis-vietnamese/blob/master/src/main/java/org/apache/lucene/analysis/vi/VietnameseAnalyzer.java
+        // TODO Language.tl -> // Tagalog
+        // https://stackoverflow.com/questions/55020235/adding-rare-languages-to-apache-solr
         Language.ne -> NepaliAnalyzer()
         Language.id -> IndonesianAnalyzer()
         Language.th -> ThaiAnalyzer()
@@ -55,24 +58,25 @@ fun Language.getAnalyzer(): Analyzer {
     }
 }
 
-val availableTranslations = listOf(
-    Translation.webus,
-    Translation.kjv,
-    Translation.rvr09,
-    Translation.tb,
-    Translation.delut,
-    Translation.lsg,
-    Translation.sinod,
-    Translation.svrj,
-    Translation.rdv24,
-    Translation.ubg,
-    Translation.ukrk,
-    Translation.sven,
-    Translation.cunp,
-    Translation.krv,
-    Translation.jc,
-    Translation.ntlh,
-)
+val availableTranslations =
+        listOf(
+                Translation.webus,
+                Translation.kjv,
+                Translation.rvr09,
+                Translation.tb,
+                Translation.delut,
+                Translation.lsg,
+                Translation.sinod,
+                Translation.svrj,
+                Translation.rdv24,
+                Translation.ubg,
+                Translation.ukrk,
+                Translation.sven,
+                Translation.cunp,
+                Translation.krv,
+                Translation.jc,
+                Translation.ntlh,
+        )
 
 private const val BIBLES = "bibleTranslationNames"
 
@@ -89,13 +93,15 @@ fun Translation.getDescription(format: Boolean = false): String {
     val nativeName = ResourceBundle.getBundle(BIBLES, nativeLocale).getString(this.toString())
 
     return if (format) {
-        val byteDiff = if (this.language.isCJK()) (getByteLength(nativeName) - nativeName.length) / 2 else 0
-        "%-6s| %-43s| %-${33 - byteDiff}s| %-11s| %-5d".format(
-            abbrev,
-            englishName,
-            nativeName,
-            nativeLocale.displayLanguage,
-            year
+        val byteDiff =
+                if (this.language.isCJK()) (getByteLength(nativeName) - nativeName.length) / 2
+                else 0
+        "%-6s| %-43s| %-${35 - byteDiff}s| %-11s| %-5d".format(
+                abbrev,
+                englishName,
+                nativeName,
+                nativeLocale.displayLanguage,
+                year
         )
     } else {
         "$abbrev, $englishName ($nativeName), ${nativeLocale.displayLanguage}, $year"

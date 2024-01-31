@@ -1,5 +1,11 @@
 package org.gnit.bible.cli
 
+import java.io.File
+import java.nio.file.Path
+import java.nio.file.Paths
+import kotlin.io.path.createDirectory
+import kotlin.io.path.notExists
+import kotlin.system.exitProcess
 import org.apache.lucene.analysis.Analyzer
 import org.apache.lucene.document.Document
 import org.apache.lucene.document.Field
@@ -10,14 +16,10 @@ import org.apache.lucene.index.IndexWriter
 import org.apache.lucene.index.IndexWriterConfig
 import org.apache.lucene.store.FSDirectory
 import org.gnit.bible.Translation
-import java.io.File
-import java.nio.file.Path
-import java.nio.file.Paths
-import kotlin.io.path.createDirectory
-import kotlin.io.path.notExists
-import kotlin.system.exitProcess
 
-fun indexPath(translation: Translation): Path = Paths.get("src/main/resources/texts/$translation/index")
+
+fun indexPath(translation: Translation): Path =
+        Paths.get("src/main/resources/texts/$translation/index")
 
 fun createIndex(translation: Translation) {
 
@@ -45,8 +47,8 @@ fun createIndex(translation: Translation) {
     (1..66).forEach { book ->
         val maxChapter = Chapters.maxChapter(book)
         (1..maxChapter).forEach { chapter ->
-
-            val versePointer = VersePointer(translation = translation, book = book, chapter = chapter)
+            val versePointer =
+                    VersePointer(translation = translation, book = book, chapter = chapter)
 
             val path = chapterTextPath(versePointer)
 
@@ -62,7 +64,9 @@ fun createIndex(translation: Translation) {
                 val doc = Document()
                 val verse = index + 1
 
-                logger.debug("adding book $book ${bookName(book)} $chapter:$verse $text as a document")
+                logger.debug(
+                        "adding book $book ${bookName(book)} $chapter:$verse $text as a document"
+                )
 
                 doc.add(IntPoint("book", book))
                 doc.add(StoredField("book", book))
@@ -86,9 +90,5 @@ fun createIndex(translation: Translation) {
 }
 
 fun main() {
-    listOf(
-        Translation.ukrk,
-    ).forEach { translation ->
-        createIndex(translation)
-    }
+    listOf(Translation.ukrk,).forEach { translation -> createIndex(translation) }
 }

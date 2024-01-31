@@ -1,3 +1,4 @@
+
 package org.gnit.bible.cli
 
 import com.github.ajalt.clikt.core.CliktCommand
@@ -9,6 +10,7 @@ import com.github.ajalt.clikt.parameters.arguments.multiple
 import com.github.ajalt.clikt.parameters.options.flag
 import com.github.ajalt.clikt.parameters.options.option
 import org.gnit.bible.Translation
+import org.gnit.bible.cli.createIndex
 import org.slf4j.LoggerFactory
 
 val DEFAULT_TRANSLATION = Translation.webus
@@ -16,11 +18,11 @@ val DEFAULT_TRANSLATION = Translation.webus
 val logger = LoggerFactory.getLogger("bbl.cli")!!
 
 data class VersePointer(
-    var translation: Translation = DEFAULT_TRANSLATION,
-    val book: Int = 0,
-    val chapter: Int = 0,
-    val startVerse: Int? = null,
-    val endVerse: Int? = null
+        var translation: Translation = DEFAULT_TRANSLATION,
+        val book: Int = 0,
+        val chapter: Int = 0,
+        val startVerse: Int? = null,
+        val endVerse: Int? = null
 )
 
 fun parse(translation: Translation, book: List<String>, chapterVerse: String): VersePointer {
@@ -33,22 +35,25 @@ fun parse(translation: Translation, book: List<String>, chapterVerse: String): V
 
     val chapterNumber = chapterVerseSplit[0].toInt()
 
-    val startVerse = if (chapterVerseSplit.size == 2) chapterVerseSplit[1].split("-")[0].toInt() else null
+    val startVerse =
+            if (chapterVerseSplit.size == 2) chapterVerseSplit[1].split("-")[0].toInt() else null
 
     val endVerse =
-        if (chapterVerseSplit.size == 2 && chapterVerse.contains("-")) chapterVerseSplit[1].split("-")[1].toInt() else null
+            if (chapterVerseSplit.size == 2 && chapterVerse.contains("-"))
+                    chapterVerseSplit[1].split("-")[1].toInt()
+            else null
 
     return VersePointer(
-        translation = translation,
-        book = bookNumber,
-        chapter = chapterNumber,
-        startVerse = startVerse,
-        endVerse = endVerse
+            translation = translation,
+            book = bookNumber,
+            chapter = chapterNumber,
+            startVerse = startVerse,
+            endVerse = endVerse
     )
 }
 
 fun chapterTextPath(versePointer: VersePointer) =
-    "texts/${versePointer.translation}/${versePointer.translation}.${versePointer.book}.${versePointer.chapter}.txt"
+        "texts/${versePointer.translation}/${versePointer.translation}.${versePointer.book}.${versePointer.chapter}.txt"
 
 fun splitChapterToVerses(aChapter: String): Array<String> {
     return aChapter.substring(2).split("\\n\\d{1,3} ".toRegex()).toTypedArray()
@@ -86,7 +91,8 @@ class Bbl(val config: Config) : CliktCommand(invokeWithoutSubcommand = true) {
     val resourceReader = getResourceReader()
     val book: List<String> by argument().multiple(default = listOf("gen"))
     val chapterVerse: String by argument().default("1")
-    val versionFlag by option("-v", "--version", help = "prints out software version of this program").flag()
+    val versionFlag by
+            option("-v", "--version", help = "prints out software version of this program").flag()
 
     lateinit var versePointer: VersePointer
     lateinit var chapterText: String
@@ -106,9 +112,8 @@ class Bbl(val config: Config) : CliktCommand(invokeWithoutSubcommand = true) {
                 chapterText = resourceReader.readText(path)
                 selectedVerses = selectVerses(versePointer, chapterText)
                 echo(selectedVerses)
-
             } else {
-                //going to move on subcommand
+                // going to move on subcommand
                 currentContext.findOrSetObject { versePointer }
             }
         }
@@ -131,12 +136,15 @@ class In : CliktCommand() {
 }
 
 fun main(args: Array<String>) {
+    // createIndex(Translation.ntlh)
     val config = readConfigFromFileSystem()
 
-    Bbl(config).subcommands(
-        In(),
-        SearchCli(env = Environment.PRODUCTION, config),
-        RandCli(config),
-        ListCli()
-    ).main(args)
+    Bbl(config)
+            .subcommands(
+                    In(),
+                    SearchCli(env = Environment.PRODUCTION, config),
+                    RandCli(config),
+                    ListCli()
+            )
+            .main(args)
 }
